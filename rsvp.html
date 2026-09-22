@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>
-  html,body{margin:0;}
+  html,body{margin:0;padding:0;}
   img{max-width:100%;}
   [hidden]{display:none !important;}
 </style>
@@ -22,32 +22,31 @@
     --c5:#C9E6FF;  /* sky     */
     --c6:#E0D4FB;  /* lilac   */
     --label:#15131B;
-    --ring:rgba(255,255,255,.55);
-    --cast:rgba(20,18,26,.28);
   }
 
-  html,body{height:100%;}
   /* Transparent on purpose: this is made to be embedded, so it sits on
-     whatever background the host page has, light or dark. */
+     whatever background the host page has, light or dark. No page padding
+     and no minimum height, so the document is exactly as tall as the button. */
   body{
     background:transparent;
     margin:0;
+    padding:0;
     font-family:"Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
     display:flex;align-items:center;justify-content:center;
-    padding:16px;
   }
   *{box-sizing:border-box;}
 
   .stage{
     position:relative;
-    width:100%;
-    max-width:640px;
-    min-height:320px;
-    display:flex;align-items:center;justify-content:center;
+    display:inline-flex;
+    max-width:100%;
   }
 
+  /* Fixed, not absolute: the particles get the whole embed viewport to fall
+     through, however tall the host sizes it, while the document itself stays
+     button-height. */
   canvas.fx{
-    position:absolute;inset:0;
+    position:fixed;inset:0;
     width:100%;height:100%;
     pointer-events:none;
     z-index:2;
@@ -74,11 +73,7 @@
       var(--c4) 57%, var(--c5) 76%, var(--c6) 100%);
     background-size:220% 100%;
     background-position:0% 50%;
-    box-shadow:
-      inset 0 1px 0 var(--ring),
-      0 2px 6px var(--cast),
-      0 14px 34px -14px var(--cast);
-    transition:background-position .9s ease, transform .16s ease, box-shadow .24s ease;
+    transition:background-position .9s ease, transform .16s ease;
     -webkit-tap-highlight-color:transparent;
     animation:drift 14s ease-in-out infinite;
   }
@@ -87,14 +82,8 @@
     50%    {background-position:100% 50%;}
   }
 
-  .btn:hover{
-    box-shadow:
-      inset 0 1px 0 var(--ring),
-      0 3px 8px var(--cast),
-      0 20px 42px -14px var(--cast);
-    transform:translateY(-2px);
-  }
-  .btn:active{transform:translateY(0) scale(.975);}
+  .btn:hover{filter:brightness(1.03);}
+  .btn:active{transform:scale(.975);}
   .btn:focus-visible{
     outline:3px solid #15131B;
     outline-offset:4px;
@@ -108,7 +97,7 @@
 
   @media (prefers-reduced-motion: reduce){
     .btn{animation:none;transition:none;}
-    .btn:hover{transform:none;}
+    .btn:hover{filter:none;}
     .btn svg{transition:none;}
   }
 </style>
@@ -148,9 +137,9 @@
 
   function size() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
-    var r = stage.getBoundingClientRect();
-    canvas.width  = Math.max(1, Math.round(r.width  * dpr));
-    canvas.height = Math.max(1, Math.round(r.height * dpr));
+    // Canvas is fixed to the viewport, so it spans the whole embed area.
+    canvas.width  = Math.max(1, Math.round(window.innerWidth  * dpr));
+    canvas.height = Math.max(1, Math.round(window.innerHeight * dpr));
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
   size();
@@ -164,10 +153,10 @@
     if (now - lastBurst < 250) return;   // one burst per press
     lastBurst = now;
 
-    var s = stage.getBoundingClientRect();
+    // Viewport coordinates, matching the fixed canvas.
     var r = btn.getBoundingClientRect();
-    var cx = r.left - s.left + r.width / 2;
-    var cy = r.top  - s.top  + r.height / 2;
+    var cx = r.left + r.width / 2;
+    var cy = r.top  + r.height / 2;
 
     for (var i = 0; i < 46; i++) {       // confetti
       var a = rand(0, Math.PI * 2), v = rand(3.2, 9.5);
