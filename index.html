@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  :root{color-scheme:light dark;}
+  html,body{margin:0;}
+  img{max-width:100%;}
+  [hidden]{display:none !important;}
+</style>
+<title>EUR/USD Converter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#F1F4F2;
+    --surface:#FFFFFF;
+    --surface-2:#F7F9F8;
+    --ink:#16211E;
+    --muted:#5F6D68;
+    --faint:#8A9994;
+    --line:#DDE4E1;
+    --accent:#0E6A51;
+    --accent-soft:#E3F0EA;
+    --focus:#0E6A51;
+    --shadow:0 1px 2px rgba(22,33,30,.05), 0 8px 24px -12px rgba(22,33,30,.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0D1413;
+      --surface:#161F1C;
+      --surface-2:#1C2724;
+      --ink:#E9EFEC;
+      --muted:#9AA8A3;
+      --faint:#748380;
+      --line:#27332F;
+      --accent:#54C297;
+      --accent-soft:#17312a;
+      --focus:#54C297;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0D1413;
+    --surface:#161F1C;
+    --surface-2:#1C2724;
+    --ink:#E9EFEC;
+    --muted:#9AA8A3;
+    --faint:#748380;
+    --line:#27332F;
+    --accent:#54C297;
+    --accent-soft:#17312a;
+    --focus:#54C297;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+  }
+
+  html,body{height:100%;}
+  body{
+    background:var(--ground);
+    color:var(--ink);
+    font-family:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size:15px;
+    line-height:1.45;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:16px;
+    padding-block:20px;
+  }
+  *{box-sizing:border-box;}
+
+  .app{width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px;}
+
+  .head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+  .pair{
+    font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-weight:600;font-size:13px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--ink);
+  }
+  .src{font-size:11.5px;color:var(--faint);letter-spacing:.02em;}
+
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .field{display:flex;flex-direction:column;gap:4px;padding:14px 16px 15px;}
+  .field.out{background:var(--surface-2);}
+  .lab{
+    font-size:10.5px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);
+  }
+  .row{display:flex;align-items:center;gap:10px;}
+
+  .amt{
+    flex:1;min-width:0;
+    font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-variant-numeric:tabular-nums;
+    font-size:30px;font-weight:500;letter-spacing:-.01em;
+    color:var(--ink);
+    background:transparent;border:0;padding:0;margin:0;
+    width:100%;
+    outline:none;
+  }
+  .amt::placeholder{color:var(--line);}
+  input.amt:focus-visible{
+    box-shadow:0 2px 0 0 var(--focus);
+  }
+  .res{
+    overflow-x:auto;white-space:nowrap;scrollbar-width:none;
+    color:var(--accent);
+  }
+  .res::-webkit-scrollbar{display:none;}
+
+  .cur{
+    flex:0 0 auto;
+    font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size:13px;font-weight:500;letter-spacing:.06em;
+    color:var(--ink);
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:7px 8px;
+    cursor:pointer;
+    appearance:none;-webkit-appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
+    background-position:calc(100% - 15px) calc(50% + 1px), calc(100% - 11px) calc(50% + 1px);
+    background-size:4px 4px, 4px 4px;
+    background-repeat:no-repeat;
+    padding-right:26px;
+  }
+  .cur:focus-visible{outline:2px solid var(--focus);outline-offset:1px;}
+
+  .rule{position:relative;height:1px;background:var(--line);margin:0 16px;}
+  .swap{
+    position:absolute;right:0;top:50%;transform:translateY(-50%);
+    width:34px;height:34px;border-radius:50%;
+    display:grid;place-items:center;
+    background:var(--surface);
+    border:1px solid var(--line);
+    color:var(--accent);
+    cursor:pointer;
+    transition:transform .18s ease, background-color .18s ease;
+  }
+  .swap:hover{background:var(--accent-soft);}
+  .swap:active{transform:translateY(-50%) scale(.93);}
+  .swap:focus-visible{outline:2px solid var(--focus);outline-offset:2px;}
+  .swap svg{width:15px;height:15px;display:block;}
+
+  .meta{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .quotes{
+    display:flex;flex-direction:column;gap:2px;
+    font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-variant-numeric:tabular-nums;
+    font-size:12.5px;color:var(--muted);
+  }
+  .quotes .inv{color:var(--faint);font-size:11.5px;}
+  .flag{
+    display:none;margin-left:6px;padding:1px 6px;border-radius:999px;
+    background:var(--accent-soft);color:var(--accent);
+    font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    font-family:"IBM Plex Sans",sans-serif;vertical-align:1px;
+  }
+  .flag.on{display:inline-block;}
+
+  .acts{display:flex;gap:6px;flex-shrink:0;}
+  .btn{
+    font-family:"IBM Plex Sans",sans-serif;
+    font-size:11.5px;font-weight:500;letter-spacing:.02em;
+    color:var(--muted);
+    background:transparent;
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:5px 10px;
+    cursor:pointer;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .btn:hover{color:var(--accent);border-color:var(--accent);}
+  .btn:focus-visible{outline:2px solid var(--focus);outline-offset:1px;}
+
+  .editor{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px 12px;
+  }
+  .editor .cap{font-size:11.5px;color:var(--faint);letter-spacing:.02em;}
+  .editor input{
+    font-family:"IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric:tabular-nums;
+    font-size:14px;color:var(--ink);
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:5px 8px;width:110px;
+    outline:none;
+  }
+  .editor input:focus-visible{border-color:var(--focus);}
+
+  .note{
+    margin:0;font-size:11px;line-height:1.55;color:var(--faint);
+  }
+  .note a{color:var(--muted);text-decoration:underline;text-underline-offset:2px;}
+
+  @media (max-width:380px){
+    .amt{font-size:26px;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <div class="pair" id="pairLabel">EUR / USD</div>
+    <div class="src">ECB reference rate · <span id="asof">21 Sep 2026</span></div>
+  </header>
+
+  <div class="panel">
+    <div class="field">
+      <label class="lab" for="amount">You have</label>
+      <div class="row">
+        <input id="amount" class="amt" type="text" inputmode="decimal" value="100"
+               autocomplete="off" spellcheck="false" aria-label="Amount to convert">
+        <select id="from" class="cur" aria-label="Convert from"></select>
+      </div>
+    </div>
+
+    <div class="rule">
+      <button id="swap" class="swap" type="button" aria-label="Swap currencies" title="Swap currencies">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4.5 2.5v11M4.5 13.5 2 11M11.5 13.5v-11M11.5 2.5 14 5"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="field out">
+      <label class="lab" for="result">You get</label>
+      <div class="row">
+        <output id="result" class="amt res" for="amount">114.90</output>
+        <select id="to" class="cur" aria-label="Convert to"></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div class="quotes">
+      <span id="q1">1 EUR = 1.1490 USD<span class="flag" id="customFlag">custom</span></span>
+      <span class="inv" id="q2">1 USD = 0.8703 EUR</span>
+    </div>
+    <div class="acts">
+      <button class="btn" id="editRate" type="button">Edit rate</button>
+      <button class="btn" id="copy" type="button">Copy</button>
+    </div>
+  </div>
+
+  <div class="editor" id="editor" hidden>
+    <span class="cap" id="editorCap">1 EUR =</span>
+    <input id="rateInput" type="text" inputmode="decimal" aria-label="Custom exchange rate">
+    <span class="cap" id="editorUnit">USD</span>
+    <button class="btn" id="resetRate" type="button">Use ECB rate</button>
+  </div>
+
+  <p class="note">
+    Rates are the European Central Bank reference rates published 21 Sep 2026 and are stored in the page,
+    so they don't update on their own. Edit the rate above for a live or bank-specific quote.
+  </p>
+</div>
+
+<script>
+(function () {
+  // ECB euro foreign exchange reference rates, 21 September 2026. Base: 1 EUR.
+  var RATES = {
+    EUR: 1, USD: 1.149, GBP: 0.8578, CHF: 0.9438, JPY: 180.7,
+    CAD: 1.6091, AUD: 1.6098, MXN: 19.7533, SEK: 11.275, PLN: 4.353, INR: 110.0975
+  };
+  var NAMES = {
+    EUR: "Euro", USD: "US dollar", GBP: "Pound sterling", CHF: "Swiss franc",
+    JPY: "Japanese yen", CAD: "Canadian dollar", AUD: "Australian dollar",
+    MXN: "Mexican peso", SEK: "Swedish krona", PLN: "Polish złoty", INR: "Indian rupee"
+  };
+  var ZERO_DP = { JPY: true };
+
+  var el = function (id) { return document.getElementById(id); };
+  var amount = el("amount"), fromSel = el("from"), toSel = el("to"),
+      result = el("result"), pairLabel = el("pairLabel"),
+      q1 = el("q1"), q2 = el("q2"), customFlag = el("customFlag"),
+      editor = el("editor"), rateInput = el("rateInput"),
+      editorCap = el("editorCap"), editorUnit = el("editorUnit"),
+      editRate = el("editRate"), resetRate = el("resetRate"),
+      copyBtn = el("copy"), swapBtn = el("swap");
+
+  var overrides = {};   // "EUR>USD" -> rate typed by the reader
+  var copyTimer = null;
+
+  Object.keys(RATES).forEach(function (code) {
+    [fromSel, toSel].forEach(function (sel) {
+      var o = document.createElement("option");
+      o.value = code;
+      o.textContent = code;
+      o.title = NAMES[code];
+      sel.appendChild(o);
+    });
+  });
+  fromSel.value = "EUR";
+  toSel.value = "USD";
+
+  function key() { return fromSel.value + ">" + toSel.value; }
+
+  function baseRate() {
+    return RATES[toSel.value] / RATES[fromSel.value];
+  }
+
+  function rate() {
+    var o = overrides[key()];
+    return (typeof o === "number" && isFinite(o) && o > 0) ? o : baseRate();
+  }
+
+  function isCustom() {
+    return typeof overrides[key()] === "number";
+  }
+
+  function parseAmount(raw) {
+    var s = String(raw).trim().replace(/[\s '’]/g, "");
+    if (s === "") return 0;
+    // Accept both 1.234,56 and 1,234.56
+    if (s.indexOf(",") > -1 && s.indexOf(".") > -1) {
+      s = s.lastIndexOf(",") > s.lastIndexOf(".")
+        ? s.replace(/\./g, "").replace(",", ".")
+        : s.replace(/,/g, "");
+    } else if (s.indexOf(",") > -1) {
+      s = /,\d{3}$/.test(s) ? s.replace(/,/g, "") : s.replace(",", ".");
+    }
+    var n = parseFloat(s.replace(/[^0-9.\-]/g, ""));
+    return isFinite(n) ? n : 0;
+  }
+
+  function money(value, code) {
+    var dp = ZERO_DP[code] ? 0 : 2;
+    try {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency", currency: code,
+        minimumFractionDigits: dp, maximumFractionDigits: dp
+      }).format(value);
+    } catch (e) {
+      return value.toFixed(dp) + " " + code;
+    }
+  }
+
+  function quote(value) {
+    // FX convention: four decimals, except for the yen-sized numbers.
+    return value >= 100 ? value.toFixed(2) : value.toFixed(4);
+  }
+
+  function render() {
+    var f = fromSel.value, t = toSel.value, r = rate();
+    var value = parseAmount(amount.value) * r;
+
+    result.textContent = money(value, t);
+    pairLabel.textContent = f + " / " + t;
+
+    q1.firstChild.nodeValue = "1 " + f + " = " + quote(r) + " " + t + " ";
+    q2.textContent = "1 " + t + " = " + quote(1 / r) + " " + f;
+    customFlag.className = "flag" + (isCustom() ? " on" : "");
+
+    editorCap.textContent = "1 " + f + " =";
+    editorUnit.textContent = t;
+    if (document.activeElement !== rateInput) rateInput.value = quote(r);
+
+    resetRate.hidden = !isCustom();
+  }
+
+  amount.addEventListener("input", render);
+  amount.addEventListener("focus", function () { amount.select(); });
+
+  fromSel.addEventListener("change", function () {
+    if (fromSel.value === toSel.value) {
+      toSel.value = Object.keys(RATES).filter(function (c) { return c !== fromSel.value; })[0];
+    }
+    render();
+  });
+  toSel.addEventListener("change", function () {
+    if (toSel.value === fromSel.value) {
+      fromSel.value = Object.keys(RATES).filter(function (c) { return c !== toSel.value; })[0];
+    }
+    render();
+  });
+
+  swapBtn.addEventListener("click", function () {
+    var f = fromSel.value;
+    fromSel.value = toSel.value;
+    toSel.value = f;
+    render();
+  });
+
+  editRate.addEventListener("click", function () {
+    editor.hidden = !editor.hidden;
+    editRate.textContent = editor.hidden ? "Edit rate" : "Hide rate";
+    if (!editor.hidden) { rateInput.focus(); rateInput.select(); }
+  });
+
+  rateInput.addEventListener("input", function () {
+    var v = parseAmount(rateInput.value);
+    if (v > 0) { overrides[key()] = v; } else { delete overrides[key()]; }
+    render();
+  });
+
+  resetRate.addEventListener("click", function () {
+    delete overrides[key()];
+    rateInput.value = quote(baseRate());
+    render();
+    rateInput.focus();
+  });
+
+  copyBtn.addEventListener("click", function () {
+    var text = result.textContent;
+    var done = function (ok) {
+      copyBtn.textContent = ok ? "Copied" : "Select it";
+      clearTimeout(copyTimer);
+      copyTimer = setTimeout(function () { copyBtn.textContent = "Copy"; }, 1600);
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+        return;
+      }
+    } catch (e) { /* fall through */ }
+    done(false);
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>
