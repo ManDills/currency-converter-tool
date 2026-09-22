@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nicole Is Turning 40</title>
+<style>
+  :root{color-scheme:light dark;}
+  html,body{height:100%;margin:0;padding:0;}
+  body{
+    background:transparent;
+    display:flex;align-items:center;justify-content:center;
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box;}
+
+  .frame{
+    position:relative;
+    height:100%;
+    max-height:100%;
+    aspect-ratio:9 / 16;
+    max-width:100%;
+    margin:0 auto;
+    overflow:hidden;
+    border-radius:10px;
+    background:#0c0f12;
+  }
+
+  video{
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    background:#0c0f12;
+  }
+
+  /* Custom play badge over the poster. Hidden once playback starts, and
+     hidden immediately if the browser decides to show its own controls. */
+  .play{
+    position:absolute;inset:0;
+    display:grid;place-items:center;
+    border:0;padding:0;margin:0;
+    background:linear-gradient(to bottom, rgba(8,10,14,.10), rgba(8,10,14,.34));
+    cursor:pointer;
+    transition:opacity .25s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .play[hidden]{display:none !important;}
+  .play:hover .disc{transform:scale(1.06);}
+  .play:focus-visible{outline:3px solid #fff;outline-offset:-6px;}
+
+  .disc{
+    width:clamp(56px, 16vw, 78px);
+    aspect-ratio:1;
+    border-radius:50%;
+    display:grid;place-items:center;
+    background:rgba(255,255,255,.92);
+    transition:transform .22s ease;
+  }
+  .disc svg{
+    width:38%;height:38%;
+    margin-left:8%;          /* optically centre the triangle */
+    fill:#111417;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .play,.disc{transition:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="frame">
+  <video id="v"
+         poster="nicole-hero-poster.jpg"
+         preload="metadata"
+         playsinline
+         controls
+         controlslist="nodownload">
+    <source src="nicole-hero.mp4" type="video/mp4">
+    Your browser can't play this video.
+    <a href="nicole-hero.mp4">Download it instead.</a>
+  </video>
+
+  <button class="play" id="play" type="button" aria-label="Play video">
+    <span class="disc">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5 20 12 6 20.5z"/></svg>
+    </span>
+  </button>
+</div>
+
+<script>
+(function () {
+  var v = document.getElementById("v");
+  var play = document.getElementById("play");
+
+  play.addEventListener("click", function () {
+    play.hidden = true;
+    var p = v.play();
+    if (p && typeof p.catch === "function") {
+      // Autoplay-with-sound can be refused; the native controls remain.
+      p.catch(function () { play.hidden = false; });
+    }
+  });
+
+  v.addEventListener("play",  function () { play.hidden = true; });
+  v.addEventListener("pause", function () { if (v.currentTime === 0) play.hidden = false; });
+  v.addEventListener("ended", function () { play.hidden = false; });
+})();
+</script>
+
+</body>
+</html>
